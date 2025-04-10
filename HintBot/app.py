@@ -53,8 +53,8 @@ if st.session_state.get('analyzed'):
         # Gemini API integration using genai
         try:
             with st.spinner("Fetching corrected code..."):
-                client = genai.Client(api_key="AIzaSyAUPjyd-IZz-INHYHjQGv7l_J8qxgAHsk8")  # Replace with your actual API key
-                prompt = f"Correct the following Python code:\n\n{code_input}"
+                client = genai.Client(api_key=GOOGLE_API_KEY)  # Replace with your actual API key
+                prompt = f"The following is an erronous Python code:\n\n{code_input}\n\nPlease suggest a corrected version of the code, with the error and the fix in the commented form."
                 response = client.models.generate_content(
                     model="gemini-2.0-flash",  # Specify the model
                     contents=prompt

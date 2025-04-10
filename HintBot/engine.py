@@ -1,6 +1,5 @@
 import ast
 import traceback
-import sys
 
 # Custom Hints DB
 HINTS = {
@@ -86,14 +85,14 @@ def get_ast_warnings(code):
                     warnings.append("Try to avoid using `eval()` unless necessary.")
             if isinstance(node, ast.FunctionDef) and len(node.body) > 20:
                 warnings.append(f"Function `{node.name}` might be doing too much. Consider splitting it.")
-    except SyntaxError as e:
+    except SyntaxError:
         warnings.append("Could not parse code due to syntax error.")
     return warnings
 
 def execute_code(code):
     try:
         exec(code, {})
-        return [], None  # no errors
+        return [], None
     except Exception as e:
         tb = traceback.format_exc()
         error_type = e.__class__.__name__

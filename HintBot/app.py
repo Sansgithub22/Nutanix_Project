@@ -1,6 +1,7 @@
 import streamlit as st
-from google import genai  # Import the genai library
+from google import genai  # Gemini Client
 from engine import get_ast_warnings, execute_code
+import re
 
 st.title("💡 HintBot — Learn to Debug Step by Step")
 
@@ -12,14 +13,12 @@ if st.button("Analyze"):
         st.warning("Please paste some code to analyze.")
     else:
         with st.spinner("Analyzing..."):
-            # Store results in session state
             st.session_state['ast_hints'] = get_ast_warnings(code_input)
             st.session_state['runtime_hints'], st.session_state['traceback'] = execute_code(code_input)
             st.session_state['show_ast'] = 1
             st.session_state['show_runtime'] = 1
             st.session_state['analyzed'] = True
 
-# If already analyzed
 if st.session_state.get('analyzed'):
     st.subheader("📘 Static Hints")
     ast_hints = st.session_state.get('ast_hints', [])
@@ -47,22 +46,51 @@ if st.session_state.get('analyzed'):
     else:
         st.success("Your code ran without errors!")
 
-    # Suggested code section
-    st.subheader("💡 Suggested Code")
-    with st.expander("See Suggested Code"):
-        # Gemini API integration using genai
-        try:
-            with st.spinner("Fetching corrected code..."):
-                client = genai.Client(api_key=GOOGLE_API_KEY)  # Replace with your actual API key
-                prompt = f"The following is an erronous Python code:\n\n{code_input}\n\nPlease suggest a corrected version of the code, with the error and the fix in the commented form."
-                response = client.models.generate_content(
-                    model="gemini-2.0-flash",  # Specify the model
-                    contents=prompt
-                )
-                suggested_code = response.text if response.text else "# No suggestions available."
-        except Exception as e:
-            suggested_code = f"# Error: {str(e)}"
+    st.subheader("💡 Suggested Code & Explanation")
 
-        st.code(suggested_code, language="python")
+    try:
+        with st.spinner("Fetching corrected code and explanation..."):
+            client = genai.Client(api_key="AIzaSyAUPjyd-IZz-INHYHjQGv7l_J8qxgAHsk8")  # Your key here
+
+            # Prompt for corrected code
+            prompt_code = f"""You are an expert Python developer.
+
+Fix the following Python code and return only the corrected version as raw code (no markdown, no explanation, no triple backticks).
+
+Code:
+{code_input}
+"""
+            response_code = client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=prompt_code
+            )
+            suggested_code = response_code.text.strip() if response_code.text else "# No suggestions available."
+
+            # Remove markdown wrapping if Gemini adds it anyway
+            suggested_code = re.sub(r"^```python|```$", "", suggested_code, flags=re.MULTILINE).strip()
+
+            # Prompt for explanation
+            prompt_explain = f"""You are an expert Python tutor.
+
+Explain the bugs and issues in the following code and how they were fixed. Be concise and beginner-friendly.
+
+Code:
+{code_input}
+"""
+            response_explain = client.models.generate_content(
+                model="gemini-2.0-flash",
+                contents=prompt_explain
+            )
+            explanation = response_explain.text.strip() if response_explain.text else "No explanation available."
+
+    except Exception as e:
+        suggested_code = f"# Error: {str(e)}"
+        explanation = "Could not fetch explanation due to error."
+
+    with st.expander("🛠️ See Suggested Code"):
+        st.text(suggested_code)
+
+    with st.expander("📘 Explain Fix"):
+        st.markdown(explanation)
 
     st.caption("HintBot helps you *learn* — not just fix.")

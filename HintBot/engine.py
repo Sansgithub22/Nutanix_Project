@@ -4,76 +4,77 @@ import traceback
 # Custom Hints DB
 HINTS = {
     "IndexError": [
-        "Are you trying to access an index that’s out of range?",
-        "Check the length of your list or array.",
-        "Remember: indexing starts at 0 in Python."
+        "Consider revisiting how elements are being accessed within your sequence.",
+        "Check if the index used exceeds the bounds of the list or array.",
+        "You're trying to access a position that doesn’t exist in the sequence — list indices must be within range."
     ],
     "NameError": [
-        "Are you using a variable before defining it?",
-        "Check for typos in variable or function names.",
-        "Ensure you’ve declared all your variables."
+        "It appears a reference may not correspond to a defined identifier.",
+        "Ensure all variables or functions are declared before being used.",
+        "A variable or function is being used before it has been defined — please check for typos or omissions."
     ],
     "SyntaxError": [
-        "Is there a missing colon, parenthesis, or quote?",
-        "Check indentation and line endings.",
-        "Syntax errors often show up one line after the actual mistake."
+        "There might be an inconsistency in the structure or formatting of the code.",
+        "Review your use of colons, parentheses, or quotation marks for completeness.",
+        "The code contains a syntax error — likely due to missing punctuation or incorrect indentation."
     ],
     "ZeroDivisionError": [
-        "You're dividing a number by zero.",
-        "Add a check before the division operation.",
-        "Use try-except to handle divide-by-zero gracefully."
+        "Reevaluate the operands involved in arithmetic expressions.",
+        "Ensure that no division operations involve a zero denominator.",
+        "You're dividing by zero, which is mathematically undefined and not allowed in Python."
     ],
     "TypeError": [
-        "Are you mixing incompatible data types?",
-        "You might be adding a string and an integer.",
-        "Try converting types explicitly using int(), str(), etc."
+        "The operation might be applied to elements of incompatible types.",
+        "Verify that operands belong to compatible data types before combining them.",
+        "You're attempting an operation with mismatched types — such as adding a string to an integer."
     ],
     "AttributeError": [
-        "Does the object really have that attribute or method?",
-        "Check the object's type before calling the attribute.",
-        "Use dir(object) to inspect available attributes."
+        "An object may not support the requested operation or characteristic.",
+        "Check whether the attribute or method actually exists for the object's type.",
+        "You're accessing an attribute or method that does not exist for this object."
     ],
     "KeyError": [
-        "The key you’re accessing doesn’t exist in the dictionary.",
-        "Check if the key exists using key in dict.",
-        "Use .get(key) to safely access values."
+        "A dictionary lookup might be referencing an unavailable key.",
+        "Consider verifying the presence of the key before accessing its value.",
+        "You're attempting to access a key that doesn't exist in the dictionary."
     ],
     "ValueError": [
-        "You're passing an inappropriate value to a function.",
-        "Ensure the value fits the expected format or range.",
-        "Wrap risky conversions (like int('abc')) in try-except blocks."
+        "The function may be receiving input that is semantically inappropriate.",
+        "Confirm that values passed into functions meet their expected format or constraints.",
+        "You're passing an invalid value — for example, trying to convert a non-numeric string to an integer."
     ],
     "ImportError": [
-        "The module you're trying to import doesn’t exist or isn’t installed.",
-        "Check the module name for typos.",
-        "Try installing it with pip install."
+        "There may be an issue resolving external references or modules.",
+        "Verify that the module or object you're importing is correctly named and available.",
+        "The import failed — the specified module or component doesn't exist or isn't installed."
     ],
     "IndentationError": [
-        "Python relies on indentation for block structure.",
-        "Ensure consistent use of tabs or spaces (not both).",
-        "Each block (if, for, def, etc.) must be properly indented."
+        "The layout of your code blocks may not conform to expected alignment.",
+        "Ensure consistent indentation throughout your script using either spaces or tabs (not both).",
+        "Your code's indentation is incorrect — Python requires properly aligned blocks."
     ],
     "UnboundLocalError": [
-        "You’re using a local variable before assigning it.",
-        "Declare the variable before using it.",
-        "Use the global keyword if you’re modifying a global variable."
+        "A variable might be interpreted locally without prior assignment.",
+        "Check if you're referencing a variable before defining it within the function.",
+        "You're using a local variable before assigning it — use the global keyword if needed."
     ],
     "RecursionError": [
-        "You’ve exceeded the maximum recursion depth.",
-        "Make sure your recursive function has a base case.",
-        "Check that each recursive call gets closer to the base case."
+        "There could be an excessively deep call chain in your function.",
+        "Ensure that the recursive function includes a termination condition.",
+        "Your recursive function is calling itself endlessly — this has exceeded Python's recursion limit."
     ],
     "FileNotFoundError": [
-        "The file path might be incorrect or the file doesn’t exist.",
-        "Check if the file name and location are correct.",
-        "Use os.path.exists() to confirm the file’s presence."
+        "The resource being accessed may not be available in the expected location.",
+        "Double-check the filename and its path for any errors.",
+        "The file you're trying to open does not exist — verify the path and filename."
     ],
     "ModuleNotFoundError": [
-        "The module you're trying to import isn't installed.",
-        "Check for typos in the module name.",
-        "Install it using pip install module_name."
+        "The system may be unable to locate the specified external module.",
+        "Make sure the module name is spelled correctly and that it's installed.",
+        "Python can't find the module — it’s either missing or not installed. Try using pip install."
     ]
 }
+
 
 def get_ast_warnings(code):
     warnings = []

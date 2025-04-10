@@ -1,6 +1,7 @@
 import streamlit as st
 from google import genai
 from engine import get_ast_warnings, execute_code
+import re
 
 st.title("💡 HintBot — Learn to Debug Step by Step")
 
@@ -12,7 +13,7 @@ if st.button("Analyze"):
     else:
         with st.spinner("Analyzing..."):
             st.session_state['ast_hints'] = get_ast_warnings(code_input)
-            st.session_state['runtime_hints'], st.session_state['traceback'] = execute_code(code_input)
+            st.session_state['runtime_hints'], st.session_state['traceback'], st.session_state['output'] = execute_code(code_input)
             st.session_state['analyzed'] = True
             st.session_state['show_ast'] = 1
             st.session_state['show_runtime'] = 1
@@ -81,6 +82,11 @@ if st.session_state.get('analyzed'):
             st.code(st.session_state.get('traceback', ''), language="python")
     else:
         st.success("Your code ran without errors!")
+        # ✅ Show terminal-like output
+        if st.session_state.get('output'):
+            st.subheader("📤 Program Output")
+            st.code(st.session_state['output'], language="text")
+    
 
     # Always show these two sections
     st.subheader("💡 Suggested Code")

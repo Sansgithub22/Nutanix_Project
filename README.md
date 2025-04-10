@@ -20,4 +20,4 @@ Easily debug and enhance your code through a gamified experience. Just insert yo
 Just drop your code in the box, and let the fun begin!
 Solve clever hints, uncover detailed error insights, and boost your code’s readability — all in one smooth, gamified experience.
 
-Happy debugging! 🧩💡👨‍💻
+Happy debugging! 💡👨‍💻

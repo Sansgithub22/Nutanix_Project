@@ -1,4 +1,5 @@
 import streamlit as st
+from google import genai  # Import the genai library
 from engine import get_ast_warnings, execute_code
 
 st.title("💡 HintBot — Learn to Debug Step by Step")
@@ -46,5 +47,22 @@ if st.session_state.get('analyzed'):
     else:
         st.success("Your code ran without errors!")
 
+    # Suggested code section
+    st.subheader("💡 Suggested Code")
+    with st.expander("See Suggested Code"):
+        # Gemini API integration using genai
+        try:
+            with st.spinner("Fetching corrected code..."):
+                client = genai.Client(api_key="AIzaSyAUPjyd-IZz-INHYHjQGv7l_J8qxgAHsk8")  # Replace with your actual API key
+                prompt = f"Correct the following Python code:\n\n{code_input}"
+                response = client.models.generate_content(
+                    model="gemini-2.0-flash",  # Specify the model
+                    contents=prompt
+                )
+                suggested_code = response.text if response.text else "# No suggestions available."
+        except Exception as e:
+            suggested_code = f"# Error: {str(e)}"
 
-        st.caption("HintBot helps you *learn* — not just fix.")
+        st.code(suggested_code, language="python")
+
+    st.caption("HintBot helps you *learn* — not just fix.")

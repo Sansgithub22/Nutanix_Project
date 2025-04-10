@@ -20,7 +20,7 @@ if st.button("Analyze"):
 
             try:
                 if st.session_state['runtime_hints'] or st.session_state['ast_hints']:
-                    client = genai.Client(api_key="AIzaSyAUPjyd-IZz-INHYHjQGv7l_J8qxgAHsk8")
+                    client = genai.Client(api_key="Your API KEY here")
 
                     fix_prompt = f"Correct the following Python code. Return only the corrected code without explanation:\n\n{code_input}"
                     fix_response = client.models.generate_content(

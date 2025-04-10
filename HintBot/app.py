@@ -50,6 +50,19 @@ if st.button("Analyze"):
                 else:
                     st.session_state['suggested_code'] = "✅ No more suggested fixes."
                     st.session_state['explanation'] = "✅ No more error explanations."
+
+                    client = genai.Client(api_key="AIzaSyAUPjyd-IZz-INHYHjQGv7l_J8qxgAHsk8")
+                    readability_prompt = f"""Evaluate the readability of the following Python code. 
+                    Give a readability score between 0 (hard to read) and 10 (very easy to read), and briefly justify the score.
+
+                    Code:
+                    {code_input}
+                    """
+                    readability_response = client.models.generate_content(
+                        model="gemini-2.0-flash",
+                        contents=readability_prompt
+                    )
+                    st.session_state['readability'] = readability_response.text
                     
             except Exception as e:
                 st.session_state['suggested_code'] = f"# Error: {str(e)}"
@@ -98,6 +111,6 @@ if st.session_state.get('analyzed'):
         st.markdown(st.session_state.get('explanation', ''))
 
     st.subheader("📊 Readability Score")
-    st.markdown(st.session_state.get('readability', 'Not available'))
+    st.markdown(st.session_state.get('readability', ''))
 
     st.caption("HintBot helps you *learn* — not just fix.")

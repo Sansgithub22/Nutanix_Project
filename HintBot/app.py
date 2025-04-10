@@ -1,13 +1,11 @@
 import streamlit as st
-from google import genai  # Gemini Client
+from google import genai
 from engine import get_ast_warnings, execute_code
-import re
 
 st.title("💡 HintBot — Learn to Debug Step by Step")
 
 code_input = st.text_area("Paste your Python code here", height=300)
 
-# Button to analyze code
 if st.button("Analyze"):
     if not code_input.strip():
         st.warning("Please paste some code to analyze.")
@@ -15,10 +13,35 @@ if st.button("Analyze"):
         with st.spinner("Analyzing..."):
             st.session_state['ast_hints'] = get_ast_warnings(code_input)
             st.session_state['runtime_hints'], st.session_state['traceback'] = execute_code(code_input)
+            st.session_state['analyzed'] = True
             st.session_state['show_ast'] = 1
             st.session_state['show_runtime'] = 1
-            st.session_state['analyzed'] = True
 
+            try:
+                if st.session_state['runtime_hints'] or st.session_state['ast_hints']:
+                    client = genai.Client(api_key="AIzaSyAUPjyd-IZz-INHYHjQGv7l_J8qxgAHsk8")
+
+                    fix_prompt = f"Correct the following Python code. Return only the corrected code without explanation:\n\n{code_input}"
+                    fix_response = client.models.generate_content(
+                        model="gemini-2.0-flash",
+                        contents=fix_prompt
+                    )
+                    st.session_state['suggested_code'] = fix_response.text.strip("`")
+
+                    explain_prompt = f"Explain the issues and fixes in this Python code:\n\n{code_input}"
+                    explain_response = client.models.generate_content(
+                        model="gemini-2.0-flash",
+                        contents=explain_prompt
+                    )
+                    st.session_state['explanation'] = explain_response.text
+                else:
+                    st.session_state['suggested_code'] = "✅ No more suggested fixes."
+                    st.session_state['explanation'] = "✅ No more error explanations."
+            except Exception as e:
+                st.session_state['suggested_code'] = f"# Error: {str(e)}"
+                st.session_state['explanation'] = ""
+
+# Display results
 if st.session_state.get('analyzed'):
     st.subheader("📘 Static Hints")
     ast_hints = st.session_state.get('ast_hints', [])
@@ -46,51 +69,13 @@ if st.session_state.get('analyzed'):
     else:
         st.success("Your code ran without errors!")
 
-    st.subheader("💡 Suggested Code & Explanation")
-
-    try:
-        with st.spinner("Fetching corrected code and explanation..."):
-            client = genai.Client(api_key="AIzaSyAUPjyd-IZz-INHYHjQGv7l_J8qxgAHsk8")  # Your key here
-
-            # Prompt for corrected code
-            prompt_code = f"""You are an expert Python developer.
-
-Fix the following Python code and return only the corrected version as raw code (no markdown, no explanation, no triple backticks).
-
-Code:
-{code_input}
-"""
-            response_code = client.models.generate_content(
-                model="gemini-2.0-flash",
-                contents=prompt_code
-            )
-            suggested_code = response_code.text.strip() if response_code.text else "# No suggestions available."
-
-            # Remove markdown wrapping if Gemini adds it anyway
-            suggested_code = re.sub(r"^```python|```$", "", suggested_code, flags=re.MULTILINE).strip()
-
-            # Prompt for explanation
-            prompt_explain = f"""You are an expert Python tutor.
-
-Explain the bugs and issues in the following code and how they were fixed. Be concise and beginner-friendly.
-
-Code:
-{code_input}
-"""
-            response_explain = client.models.generate_content(
-                model="gemini-2.0-flash",
-                contents=prompt_explain
-            )
-            explanation = response_explain.text.strip() if response_explain.text else "No explanation available."
-
-    except Exception as e:
-        suggested_code = f"# Error: {str(e)}"
-        explanation = "Could not fetch explanation due to error."
-
+    # Always show these two sections
+    st.subheader("💡 Suggested Code")
     with st.expander("🛠️ See Suggested Code"):
-        st.text(suggested_code)
+        st.code(st.session_state.get('suggested_code', ''), language="python")
 
+    st.subheader("🧠 Explain Fix")
     with st.expander("📘 Explain Fix"):
-        st.markdown(explanation)
+        st.markdown(st.session_state.get('explanation', ''))
 
     st.caption("HintBot helps you *learn* — not just fix.")

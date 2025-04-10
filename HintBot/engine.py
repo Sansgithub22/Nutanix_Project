@@ -76,6 +76,7 @@ HINTS = {
     ]
 }
 
+
 def get_ast_warnings(code):
     warnings = []
     try:

@@ -21,13 +21,14 @@ if st.button("Analyze"):
             try:
                 if st.session_state['runtime_hints'] or st.session_state['ast_hints']:
                     client = genai.Client(api_key="Your API KEY here")
-
+                    
                     fix_prompt = f"Correct the following Python code. Return only the corrected code without explanation:\n\n{code_input}"
                     fix_response = client.models.generate_content(
                         model="gemini-2.0-flash",
                         contents=fix_prompt
                     )
-                    st.session_state['suggested_code'] = fix_response.text.strip("`")
+                    st.session_state['suggested_code'] = re.sub(r"^```(?:python)?\s*|```$", "", fix_response.text.strip()).strip()
+
 
                     explain_prompt = f"Explain the issues and fixes in this Python code:\n\n{code_input}"
                     explain_response = client.models.generate_content(
